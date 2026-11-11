@@ -1,0 +1,55 @@
+{
+  "recorded_on_jst": "2026-11-11",
+  "baseline_commit": "a70af1fb819eed91033c452192f11f4c7dd52524",
+  "source_baseline_67_files_unchanged": true,
+  "host": "Debian GNU/Linux 13 (x86_64)",
+  "host_compiler": "14.2.0",
+  "unit_tests": {
+    "host_tests_only": true,
+    "suites": {
+      "core": 24,
+      "at": 68,
+      "audio": 18,
+      "dsp": 71,
+      "ppp": 52,
+      "nat": 92,
+      "resample": 14,
+      "sequence": 32
+    },
+    "passed": 371,
+    "failed": 0
+  },
+  "slirp_integration": {
+    "library": "libslirp 4.8.0 (Debian 4.8.0-1+deb13u1)",
+    "udp_round_trip": "passed",
+    "tcp_handshake_and_bidirectional_payload": "passed",
+    "network_target": "local loopback test servers; not public Internet or Windows RAS"
+  },
+  "windows_baseline": {
+    "target": "Windows x64 (copied modern implementation, NOT XP)",
+    "compiler": "MinGW-w64 GCC 14.2.0 POSIX",
+    "mingw_headers": "12.0.0",
+    "libslirp_import_library": "MSYS2 mingw-w64-x86_64-libslirp 4.9.3-1",
+    "compile_and_link": "passed with -Wall -Wextra -Werror",
+    "observed_xp_incompatible_imports": [
+      "fwpuclnt.dll",
+      "WSAPoll",
+      "CancelIoEx",
+      "GetTickCount64"
+    ],
+    "runtime_executed": false,
+    "transitive_dll_compatibility_audit": "not completed"
+  },
+  "xp_runtime": {
+    "executed": false,
+    "reason": "No Windows XP VM/hardware or XP NIC/COM drivers attached",
+    "ndis_driver_installed_or_executed": false,
+    "acceptance_gates": {
+      "G1": "not run / pending",
+      "G2": "not run / pending",
+      "G3": "not run / pending",
+      "G4": "not run / pending",
+      "G5": "not run / pending"
+    }
+  }
+}

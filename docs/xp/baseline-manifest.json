@@ -1,0 +1,277 @@
+{
+  "baseline_commit": "a70af1fb819eed91033c452192f11f4c7dd52524",
+  "baseline_tree": "cd03b47cc29c3784fd738947b8bfb70cd2299f8e",
+  "upstream_repository": "https://github.com/cheattoolymt/WinDialupEmu",
+  "upstream_commit": "0600952f8d02249cb6db830be764cdc0e7224cc4",
+  "tag": "xp-baseline-20261111",
+  "files": {
+    ".gitignore": {
+      "bytes": 361,
+      "sha256": "ff3a343fe61662a203c27169557fc172fa6d124d30966c3467be31bd0b10b9ad"
+    },
+    "LICENSE": {
+      "bytes": 5312,
+      "sha256": "ee78abd33a74de4c5e8f3ee4a219e6eeae14c575c79788a9f9f6921b026a6678"
+    },
+    "README.md": {
+      "bytes": 19775,
+      "sha256": "fc41764fa838f3727987ed8f6f54c134cb3c98a23d1a07cfc3f0896f3848476d"
+    },
+    "config.ini": {
+      "bytes": 4451,
+      "sha256": "3857592bc3fd1e34c625fbc583c04e4b145e3ca5a9bcf600dc4b4fe25562c2e3"
+    },
+    "include/libslirp-version.h": {
+      "bytes": 688,
+      "sha256": "93d1077362d7450de3388df6c8c45988f4f028dbce52e6709235d7a1b278defe"
+    },
+    "include/libslirp.h": {
+      "bytes": 15523,
+      "sha256": "2c95e3ae9780c1fdc9f6558f07d6d85a218c7f1342a0a36e44d653da37e41832"
+    },
+    "include/vmodem/vm_at.h": {
+      "bytes": 10490,
+      "sha256": "2490c0669602e08e8cbcb92ea8b62992a28e66cfcac3976bebbaf114d2aaa0b7"
+    },
+    "include/vmodem/vm_audio.h": {
+      "bytes": 8864,
+      "sha256": "1cf6d559982178ba43a82989b39ca69f475457a34addd1b9c32217cdf558a934"
+    },
+    "include/vmodem/vm_config.h": {
+      "bytes": 3738,
+      "sha256": "58c7ec1b4de228499597efe7a0d55b65222078063f5e818b5f7206a84caefb55"
+    },
+    "include/vmodem/vm_eth.h": {
+      "bytes": 15039,
+      "sha256": "c7fbdff12d406f443b3bff1a0df919cfd0897aef31df06ca7f4ae4137d74c38a"
+    },
+    "include/vmodem/vm_handshake.h": {
+      "bytes": 14525,
+      "sha256": "917a6b28139693502b9bcef2f23f4d16f0db2a5ac96333dda87fec1c742c50cf"
+    },
+    "include/vmodem/vm_hdlc.h": {
+      "bytes": 12045,
+      "sha256": "41afaa0e33900999bd0f09b665fdaa30c83732b45ef22b2b021458f1fee30a3a"
+    },
+    "include/vmodem/vm_hostroute.h": {
+      "bytes": 758,
+      "sha256": "4afdf109b9d41d0e5d17940a618284d4cc9d8fe8c5dc7687df2313ce6b1c1c6b"
+    },
+    "include/vmodem/vm_log.h": {
+      "bytes": 1913,
+      "sha256": "ebd451e4c591237fd5a782a1d451f24c94296147b6e174f407f9e354fd3ddf96"
+    },
+    "include/vmodem/vm_modem.h": {
+      "bytes": 10323,
+      "sha256": "d1c72cb25ab7f371796582e01ff7e593893ad90b5e79f72d6f2a7c9505d3e597"
+    },
+    "include/vmodem/vm_nat.h": {
+      "bytes": 12235,
+      "sha256": "3dfacb20ebcf5576cff26b355738618db3ffac548f13a77ee2144888693495a0"
+    },
+    "include/vmodem/vm_netguard.h": {
+      "bytes": 500,
+      "sha256": "d6e34bf7f0dae5427867ec5e3125928a7ea181f0d085a32dcd8217c6dd2f7d9f"
+    },
+    "include/vmodem/vm_ppp.h": {
+      "bytes": 18547,
+      "sha256": "43bfd69e8488c5e1020f50fa705b42a87834579a918ffa9d800ef2062514fa6c"
+    },
+    "include/vmodem/vm_resample.h": {
+      "bytes": 8535,
+      "sha256": "e8931d64da02e52f8f1c3dc3deddd054123755d184946d19a7291443fb7e4189"
+    },
+    "include/vmodem/vm_ringbuf.h": {
+      "bytes": 8325,
+      "sha256": "7e6c76f951ceb6ec5bd393b76f22a3b1d44d67a5abca506827b911ed48d7c60a"
+    },
+    "include/vmodem/vm_sequence.h": {
+      "bytes": 7183,
+      "sha256": "7f3e1b2dba236a08fb2feb4e07bab3623feb6c665643407fbaa9e84c16753fac"
+    },
+    "include/vmodem/vm_serial.h": {
+      "bytes": 9074,
+      "sha256": "b57cc8ece80e86a11fe2157ee73c0e72f1d41bdb309e533dc70a4cf70451d468"
+    },
+    "include/vmodem/vm_tone.h": {
+      "bytes": 5324,
+      "sha256": "88944379068bdcb53645216af0f7802ef7b2539fd450553673aa742ba29e9700"
+    },
+    "include/vmodem/vm_types.h": {
+      "bytes": 3982,
+      "sha256": "a2747fddb55a603529bbe5fcf46bef907c7ad5709801c869b8ad43ab44f964b6"
+    },
+    "include/vmodem/vm_winsock.h": {
+      "bytes": 4514,
+      "sha256": "654244933cc5e32434dc8c46cf1675d136f42111bb9f834708d65f21f6e9a4c8"
+    },
+    "src/audio/vm_audio.c": {
+      "bytes": 16188,
+      "sha256": "71250b0c4916c9ed6b53f39ae58d1857504a423ebae46ed8e75f25dd696b93c6"
+    },
+    "src/audio/vm_audio_internal.h": {
+      "bytes": 4384,
+      "sha256": "72c38dddc835d441d798a19d42380b8abcc9bbb80de63d98d52ca3c14c2a3a5b"
+    },
+    "src/audio/vm_audio_null.c": {
+      "bytes": 6541,
+      "sha256": "270d092e4fecb7ec5c17840e9464fab25c2d84720d0ae2df1191d83c171fa10e"
+    },
+    "src/audio/vm_audio_wasapi.c": {
+      "bytes": 24121,
+      "sha256": "991abfb6b60f7bc7e5c7dcf9e073f5672fe723102e49298ea2c00ff7cdc7fdd3"
+    },
+    "src/core/vm_config.c": {
+      "bytes": 13750,
+      "sha256": "e8a8305dbeb91252d5c1a978466ee99ce2246e5e5b28a0d2ec6a473e7753e39f"
+    },
+    "src/core/vm_log.c": {
+      "bytes": 5716,
+      "sha256": "9c2f1370f7b8b3b873bcd9f048a3db0e7bcdb9cd6f4e2f08d4627212267eee42"
+    },
+    "src/core/vm_ringbuf.c": {
+      "bytes": 7975,
+      "sha256": "e2bd5f0593bff9b3d7586a0543f92d2bfaffb65733e8c334ab01437c5a01f9c6"
+    },
+    "src/core/vm_types.c": {
+      "bytes": 4963,
+      "sha256": "89ffc9f1a5b885ecd893c38a06834a5d214c4de7cc80c5aa9e17db99f951ce0b"
+    },
+    "src/dsp/vm_handshake.c": {
+      "bytes": 24226,
+      "sha256": "3933443095780452fc664575d2c3d2bfa0edc824595c0e55aff7bcfb1e490022"
+    },
+    "src/dsp/vm_resample.c": {
+      "bytes": 8171,
+      "sha256": "01e479f9e560a8860e9161ba01298d677dc25c3bcadebfd843a2ffbc7c57f14b"
+    },
+    "src/dsp/vm_tone.c": {
+      "bytes": 12247,
+      "sha256": "5abfa1c827ba932d34f7dfa2430eab91191b75cbf78626c1f0b04f0d2968f50c"
+    },
+    "src/dsp/vm_v34.c": {
+      "bytes": 24042,
+      "sha256": "848c7d808c5ea1a02b4a4d2381161ad8d513093c9508d34a3c93f440b5b42529"
+    },
+    "src/dsp/vm_v8.c": {
+      "bytes": 10475,
+      "sha256": "ae63d293205ca42a391e4f0bc0561107ab9a9560894653d15f36dd21bfa1efbf"
+    },
+    "src/main.c": {
+      "bytes": 8062,
+      "sha256": "f4b99af178709b37815253cd4ee1b40b8599c1e73a37090ff549acf0532c82a0"
+    },
+    "src/modem/vm_at.c": {
+      "bytes": 35140,
+      "sha256": "d952f7b21c85e6994b8f38cadbc3e455f6a612dd2f22c4ac8711375b06a79ed6"
+    },
+    "src/modem/vm_modem.c": {
+      "bytes": 27659,
+      "sha256": "f94be502987d42ca8af351bee7283e1ef788cd80ab3be01bcf03cee793a89a16"
+    },
+    "src/modem/vm_sequence.c": {
+      "bytes": 19574,
+      "sha256": "18989e91f61bc0573b3178991600be25d4d71fb65e7fab68c606aa343152ccf7"
+    },
+    "src/net/vm_eth.c": {
+      "bytes": 17370,
+      "sha256": "82f8db86ff0033f607287aa4a289a3e83f349e683bb0a18025be1a5a756e09e0"
+    },
+    "src/net/vm_hdlc.c": {
+      "bytes": 14200,
+      "sha256": "2f61e09a4fe91a6c9445195f9ebeda092b8fbd8953d69b8bafab5f533b434ebd"
+    },
+    "src/net/vm_hostroute.c": {
+      "bytes": 14392,
+      "sha256": "3163f8247452b15fa0a8a463af14bdc3b4a83cca4e3848c92aa1d1053abe9355"
+    },
+    "src/net/vm_nat.c": {
+      "bytes": 15813,
+      "sha256": "8b778279ad3559f25dfa3dabee30e9274da7ac71c6d9626f9af40559995aab1b"
+    },
+    "src/net/vm_nat_internal.h": {
+      "bytes": 3839,
+      "sha256": "b740f185684c80b8ad0893bcd16093e74c1ce3bb8764906b9f8fbe7dfcecc09b"
+    },
+    "src/net/vm_nat_loopback.c": {
+      "bytes": 14080,
+      "sha256": "1ef8c9e75ea297bd3f0c71bac7cb8872e2eec0ff909924d2297976f658e06706"
+    },
+    "src/net/vm_nat_slirp.c": {
+      "bytes": 49856,
+      "sha256": "53683884a5e1d8c4b2240985d0d8ce0c77d66a88f403a4841ee120f7de853244"
+    },
+    "src/net/vm_netguard.c": {
+      "bytes": 5906,
+      "sha256": "59eedae91215316d50ac71eec332507fd797830839e517de0f675946a80c1be1"
+    },
+    "src/net/vm_ppp.c": {
+      "bytes": 47237,
+      "sha256": "b731a291e91e027828f0793b7bceed21f2e88d422b7dd07a85bc405725da8b20"
+    },
+    "src/net/vm_wfp_guids.h": {
+      "bytes": 1704,
+      "sha256": "f5378d08cfc174c67b352344a51587120211e2737d9e4ef5c351585523c719b8"
+    },
+    "src/net/vm_winsock.c": {
+      "bytes": 2432,
+      "sha256": "48adab2769fdf6619c467e11504796c191365c5207d60cc1b644e7152e358da7"
+    },
+    "src/serial/vm_serial.c": {
+      "bytes": 13713,
+      "sha256": "95904a8bde02b66fa9d888b58812c17bfc8bcb530458827a549a21e70567c89f"
+    },
+    "src/serial/vm_serial_internal.h": {
+      "bytes": 1945,
+      "sha256": "843f5acb10bc6a42d6a23a8552dc7d443808d764bbf4bef05365eb956a7cd95c"
+    },
+    "src/serial/vm_serial_win32.c": {
+      "bytes": 19686,
+      "sha256": "17b4a61d8de4a37d02e88fa3b293ff18b0d58797b26057897426e5e91083638f"
+    },
+    "tests/test_at.c": {
+      "bytes": 27078,
+      "sha256": "09558d57a13efb394dc3665f05bda3c739412e9fa7bbb09accb4c13a7f0dbc78"
+    },
+    "tests/test_audio.c": {
+      "bytes": 16089,
+      "sha256": "cc67888c7b1204804de50fca74528669166a971b125517e958ba72749ab8ba64"
+    },
+    "tests/test_core.c": {
+      "bytes": 11244,
+      "sha256": "0d51605313a6055aca37bf2ec552d87a41788ed72365a0c47a373aca5a5ea243"
+    },
+    "tests/test_dsp.c": {
+      "bytes": 35421,
+      "sha256": "3c09a6d2f8dd9a74e89546c457acb72275c0b7a0bdc0bf3472a506bcbdbd8a68"
+    },
+    "tests/test_nat.c": {
+      "bytes": 46290,
+      "sha256": "fa469a40f8a6cc9d22b74dd8c7e48c41c7a1c0fcf8ca90b2f577d7acc762ad92"
+    },
+    "tests/test_netguard.ps1": {
+      "bytes": 2303,
+      "sha256": "ff1137d437a9dcd07dd95caa404ebcc7dad846a1a180b756f87b41f647cf5c05"
+    },
+    "tests/test_netguard_win32.c": {
+      "bytes": 1846,
+      "sha256": "56f237639e0f4b197131149e5960846a86f3cc2d8b510d654e3195c0970ffa10"
+    },
+    "tests/test_ppp.c": {
+      "bytes": 59746,
+      "sha256": "8c43add5f6b9baf3f5cf40ef6df0eccaf54c773fe3f12636cf64e461c7a3ca7f"
+    },
+    "tests/test_resample.c": {
+      "bytes": 10385,
+      "sha256": "c957a1e887ea951fcbbb4a45cb0bd02a84e0d2628ee8638212d577d58ec5133b"
+    },
+    "tests/test_sequence.c": {
+      "bytes": 27271,
+      "sha256": "cd771823fa3c47982989f4ed523c5b245eb5ddad5f6012e258edf0400208e68a"
+    },
+    "tests/test_slirp.c": {
+      "bytes": 5487,
+      "sha256": "ae12d78c3699e8e8a732e0dc64620ea6817c403b3bceb541387c990db7a747c2"
+    }
+  }
+}
