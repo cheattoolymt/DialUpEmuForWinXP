@@ -10,7 +10,12 @@
     "waveout_model": "8 scenarios passed",
     "passthrough_mono_stereo": "sample identity/count, gain/clip, silence, flush passed",
     "passthrough_asan_ubsan": "passed",
-    "xp_x86_build_imports": "passed"
+    "xp_x86_build_imports": "passed",
+    "serial_wait_model": "100 idle reads wait 2000 simulated ms; immediate input, mode switches, cancellation and setup failure pass",
+    "previous_source_regression": "Same idle-wait test fails against previous source (zero waits)"
   },
-  "affected_xp_retest": "pending"
+  "affected_xp_retest": "pending",
+  "additional_reported_symptom": "User reports CPU pinned at 100 percent immediately on emulator startup",
+  "confirmed_code_defect": "Immediate-mode COMMTIMEOUTS bypasses pending-I/O wait on empty successful reads, busy looping in command state",
+  "serial_fix": "Honor read timeout with cached COMMTIMEOUTS; retain zero-time polls and pending cancellation/completion"
 }

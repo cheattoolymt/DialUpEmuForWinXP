@@ -16,3 +16,10 @@ work/xp-host-tests/test_waveout
     src/core/vm_log.c src/core/vm_types.c src/dsp/vm_resample.c -pthread -lm \
     -o work/xp-host-tests/test_audio_passthrough
 work/xp-host-tests/test_audio_passthrough
+
+# Unused Win32 open/write functions are discarded; the real read path runs.
+"$cc" "${flags[@]}" -D_WIN32 -DVMODEM_TARGET_XP -ffunction-sections \
+    -Itests/fake-serial -Iinclude -Isrc/serial tests/test_serial_wait.c \
+    src/serial/vm_serial_win32.c -Wl,--gc-sections \
+    -o work/xp-host-tests/test_serial_wait
+work/xp-host-tests/test_serial_wait

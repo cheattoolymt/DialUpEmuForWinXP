@@ -155,3 +155,26 @@ waveOutの既定をDSPと同じ8kHz mono優先へ変更した。
 対象機での改善・ドライバ内部の変換負荷・実再生時間は利用者の再確認が必要。
 `vmodem-xp.exe --audio-test` の400Hzが約1秒で再生されるかと、
 起動ログの採用レート/チャネル数を比較する。
+
+
+## 起動直後のCPU占有の修正
+
+追加報告は「エミュレータ起動直後からCPU 100%に張り付く」。
+Windows COMバックエンドが常に即戻りのCOMMTIMEOUTSを使い、
+コマンド待機の20ms指定を無視していたことを確認した。
+空のReadFileは成功・0バイトで戻るため、ERROR_IO_PENDING用の待機へ入らない。
+
+読み取りの待機指定が変わったときだけCOMMTIMEOUTSを更新する。
+0msは従来どおり即戻り、正の値は最初のバイトまで最大その時間待つ。
+ReadIntervalTimeout/ReadTotalTimeoutMultiplierをMAXDWORD、
+ReadTotalTimeoutConstantを指定時間とするMicrosoftの特別ケースを使う。
+書き込みの5秒制限、保留I/Oの取消し・完了待ちを維持する。
+
+出典: [Microsoft COMMTIMEOUTS](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-commtimeouts)
+
+`tests/test_serial_wait.c`は実際のWin32読み取り関数をホスト上のAPIモデルで実行する。
+空の読み取り100回で合計2000msの待機、即時入力、0msへの切替え、
+取消し・完了待ち、設定失敗を検証する。修正前のソースでは待機が0回となり
+同じ回帰試験が失敗することも確認した。
+これはAPI仕様モデルの試験であり、実XP/com0comのCPU測定ではない。
+対象XPで起動直後と接続後のCPU使用率・音声を再確認する。
