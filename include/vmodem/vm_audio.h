@@ -95,7 +95,8 @@ typedef enum {
     VM_AUDIO_BACKEND_AUTO = 0,   /* Windows なら WASAPI、他は null */
     VM_AUDIO_BACKEND_WASAPI,
     VM_AUDIO_BACKEND_WAVFILE,    /* WAV に書くだけ (デバッグ / CI 用) */
-    VM_AUDIO_BACKEND_NULL        /* 破棄するだけ (音を出さない設定) */
+    VM_AUDIO_BACKEND_NULL,       /* 破棄するだけ (音を出さない設定) */
+    VM_AUDIO_BACKEND_WAVEOUT     /* XP-compatible WinMM PCM output */
 } vm_audio_backend_t;
 
 typedef struct vm_audio_s vm_audio_t;
@@ -157,9 +158,14 @@ void vm_audio_wait_drain(vm_audio_t *a, uint32_t high_water, int timeout_ms);
 
 /* 溜まっている音を全部鳴らし切るまで待つ (CONNECT 前の無音確定等に使う) */
 void vm_audio_drain(vm_audio_t *a, int timeout_ms);
+/* Includes waveOut device buffers; lets diagnostics detect drain timeout. */
+bool vm_audio_is_drained(const vm_audio_t *a);
 
 /* キューを捨てる (ATH による即時切断など) */
 void vm_audio_flush(vm_audio_t *a);
+
+/* True if a running backend failed after initialization. */
+bool vm_audio_failed(const vm_audio_t *a);
 
 /* 実際に採用されたデバイス レート / バックエンド名 (ログ表示用) */
 int         vm_audio_device_rate(const vm_audio_t *a);

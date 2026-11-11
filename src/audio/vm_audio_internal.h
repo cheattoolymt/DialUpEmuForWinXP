@@ -56,6 +56,9 @@ struct vm_audio_s {
     vm_thread_t         thread;
     bool                thread_started;
     volatile int        quit;          /* 1 で停止要求 */
+    volatile int        drain_req;
+    volatile int        device_pending;
+    volatile int        failed;
     volatile int        flush_req;     /* 1 でリング破棄要求 */
 
     /* 初期化完了通知 (成否) */
@@ -101,6 +104,7 @@ void     vm_sleep_ms(int ms);
  * を行う。失敗時は a->ready_result にエラーを入れて ready_ev をセットし復帰。
  */
 void vm_audio_run_wasapi(vm_audio_t *a);
+void vm_audio_run_waveout(vm_audio_t *a);
 void vm_audio_run_wavfile(vm_audio_t *a);
 void vm_audio_run_null(vm_audio_t *a);
 

@@ -1,0 +1,97 @@
+{
+  "recorded_on_jst": "2026-11-11",
+  "parent_commit": "5c19a2db5e7568b4b777d60bff42d8aef1b942b5",
+  "stage": "Steps 3-5 offline diagnostic implementation",
+  "host_regression": {
+    "host_tests_only": true,
+    "suites": {
+      "core": 24,
+      "at": 68,
+      "audio": 18,
+      "dsp": 71,
+      "ppp": 52,
+      "nat": 92,
+      "resample": 14,
+      "sequence": 32
+    },
+    "passed": 371,
+    "failed": 0
+  },
+  "libslirp_integration": {
+    "udp_round_trip": "passed",
+    "tcp_handshake_and_payload": "passed",
+    "scope": "host local sockets only"
+  },
+  "xp_host_tests": {
+    "tick_rollover_and_monotonic_clock": "passed",
+    "production_waveout_worker_with_fake_winmm": "8 scenarios passed",
+    "waveout_address_undefined_sanitizers": "passed",
+    "windows_driver_executed": false
+  },
+  "modern_windows_x64_regression": {
+    "compile_link": "passed",
+    "runtime": "not run"
+  },
+  "xp_runtime": {
+    "exe_loader": "not run",
+    "native_smoke_exe": "built, not run",
+    "real_com_driver": "not run",
+    "waveout_hardware_playback": "not run",
+    "internet_nat": "not implemented",
+    "physical_nic_isolation": "not implemented"
+  },
+  "baseline_git_objects": "67 files verified against frozen manifest",
+  "negative_checks": {
+    "unported_slirp_mode_rejected_before_com_open": "passed on host XP profile",
+    "missing_xp_configuration_rejected": "passed on host XP profile",
+    "modern_x64_binary_rejected_by_xp_audit": "passed"
+  },
+  "xp_static_build": {
+    "vmodem-xp": {
+      "image": "vmodem-xp.exe",
+      "machine": "0x14c",
+      "pe32": true,
+      "os_version": [
+        5,
+        1
+      ],
+      "subsystem_version": [
+        5,
+        1
+      ],
+      "dlls": [
+        "KERNEL32.dll",
+        "msvcrt.dll",
+        "WINMM.DLL",
+        "WS2_32.dll"
+      ],
+      "known_incompatible_imports": [],
+      "problems": [],
+      "scope": "static PE/import checks only; XP execution and all API behaviors remain unverified",
+      "sha256": "44dde3a0c0e6c97b0857b19116f165755c2312a58ad892b66b896fa673d87c5f"
+    },
+    "xp-smoke": {
+      "image": "xp-smoke.exe",
+      "machine": "0x14c",
+      "pe32": true,
+      "os_version": [
+        5,
+        1
+      ],
+      "subsystem_version": [
+        5,
+        1
+      ],
+      "dlls": [
+        "KERNEL32.dll",
+        "msvcrt.dll",
+        "WINMM.DLL",
+        "WS2_32.dll"
+      ],
+      "known_incompatible_imports": [],
+      "problems": [],
+      "scope": "static PE/import checks only; XP execution and all API behaviors remain unverified",
+      "sha256": "ef8532deaa383276687f57c231f5766e495a6b79b171cc6cb0b8699a0782fd69"
+    }
+  }
+}

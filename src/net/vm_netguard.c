@@ -4,7 +4,7 @@
 #include "vmodem/vm_netguard.h"
 #include "vmodem/vm_log.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(VMODEM_TARGET_XP)
 #include <fwpmu.h>
 #include <ipifcons.h>
 #include <objbase.h>

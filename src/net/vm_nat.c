@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "vm_nat_internal.h"
+#include "vmodem/vm_clock.h"
 
 #ifdef _WIN32
 #  include <windows.h>
@@ -40,7 +41,9 @@
  */
 int64_t vm_nat_now_ns(void)
 {
-#ifdef _WIN32
+#ifdef VMODEM_TARGET_XP
+    return (int64_t)vm_clock_now_ms64() * 1000000LL;
+#elif defined(_WIN32)
     static LARGE_INTEGER freq;
     static int           freq_ok = 0;
     LARGE_INTEGER        now;

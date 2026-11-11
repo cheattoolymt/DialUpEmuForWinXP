@@ -1,4 +1,13 @@
-# WinDialupEmu (VModem)
+# DialUpEmuForWinXP (VModem)
+
+> **XP 専用フォーク / Steps 3〜5 の診断版**
+> XP SP3 x86 用ビルド、COM基本処理、waveOut音声出力を実装しています。
+> 実機での起動・COM・音声は未確認です。インターネット接続とLAN/Wi-Fi専用化は
+> 後続工程で、XP診断版では未実装です。導入・ビルドは
+> [XP診断版の手順](docs/xp/03-05-implementation.md)を参照してください。
+> 以下の現行Windows版の説明はコピー元の機能・比較用ビルドについての記録です。
+
+# WinDialupEmu (コピー元の説明)
 
 Windows 用の **本物のダイアルアップモデム エミュレータ**。
 
@@ -73,7 +82,7 @@ pacman -S mingw-w64-x86_64-libslirp
 MinGW-w64 の環境で、リポジトリのルートで以下を実行します（1 行）。
 
 ```bash
-gcc -O2 -std=c99 -Wall -Wextra -Iinclude -DVMODEM_HAVE_LIBSLIRP src/main.c src/core/vm_config.c src/core/vm_log.c src/core/vm_ringbuf.c src/core/vm_types.c src/audio/vm_audio.c src/audio/vm_audio_null.c src/audio/vm_audio_wasapi.c src/dsp/vm_handshake.c src/dsp/vm_resample.c src/dsp/vm_tone.c src/dsp/vm_v34.c src/dsp/vm_v8.c src/modem/vm_at.c src/modem/vm_modem.c src/modem/vm_sequence.c src/net/vm_eth.c src/net/vm_hdlc.c src/net/vm_hostroute.c src/net/vm_netguard.c src/net/vm_nat.c src/net/vm_nat_loopback.c src/net/vm_nat_slirp.c src/net/vm_ppp.c src/net/vm_winsock.c src/serial/vm_serial.c src/serial/vm_serial_win32.c -o vmodem.exe -L. -lslirp -lws2_32 -liphlpapi -lole32 -lwinmm -lfwpuclnt -lm
+gcc -O2 -std=c99 -Wall -Wextra -Iinclude -DVMODEM_HAVE_LIBSLIRP src/main.c src/core/vm_clock.c src/core/vm_config.c src/core/vm_log.c src/core/vm_ringbuf.c src/core/vm_types.c src/audio/vm_audio.c src/audio/vm_audio_null.c src/audio/vm_audio_wasapi.c src/audio/vm_audio_waveout.c src/dsp/vm_handshake.c src/dsp/vm_resample.c src/dsp/vm_tone.c src/dsp/vm_v34.c src/dsp/vm_v8.c src/modem/vm_at.c src/modem/vm_modem.c src/modem/vm_sequence.c src/net/vm_eth.c src/net/vm_hdlc.c src/net/vm_hostroute.c src/net/vm_netguard.c src/net/vm_nat.c src/net/vm_nat_loopback.c src/net/vm_nat_slirp.c src/net/vm_ppp.c src/net/vm_winsock.c src/serial/vm_serial.c src/serial/vm_serial_win32.c -o vmodem.exe -L. -lslirp -lws2_32 -liphlpapi -lole32 -lwinmm -lfwpuclnt -lm
 ```
 
 ### リンクするライブラリの理由

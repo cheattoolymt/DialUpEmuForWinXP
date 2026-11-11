@@ -99,6 +99,20 @@ typedef int vm_serial_win32_dummy_t;
 #include <string.h>
 #include <stdio.h>
 
+/* All serial I/O and destruction belong to the modem event-loop thread.
+ * The console handler only requests stop; CancelIo on XP is thread-scoped.
+ * Wrappers complete/cancel their pending operation before returning, so no
+ * independent read/write operation is outstanding when CancelIo is called. */
+static BOOL cancel_io(vm_serial_t *s, OVERLAPPED *operation)
+{
+#ifdef VMODEM_TARGET_XP
+    (void)operation;
+    return CancelIo(s->h);
+#else
+    return CancelIoEx(s->h, operation);
+#endif
+}
+
 /* ---------------------------------------------------------------------------
  * ポート名の正規化
  * -------------------------------------------------------------------------*/
@@ -309,7 +323,7 @@ void vm_serial_close_win32(vm_serial_t *s)
          * 逆順にすると OVERLAPPED の書き込み先が消えた後に
          * カーネルが書き込む可能性がある。
          */
-        CancelIoEx(s->h, NULL);
+        cancel_io(s, NULL);
 
         if (s->read_pending) {
             DWORD got = 0;
@@ -400,7 +414,7 @@ int vm_serial_read_win32(vm_serial_t *s, void *buf, int len, int timeout_ms)
          * どちらの場合も保留 I/O を取り消し、
          * 「本当に終わるまで」待ってから戻る (スタック破壊防止)。
          */
-        CancelIoEx(s->h, &s->ov_read);
+        cancel_io(s, &s->ov_read);
         GetOverlappedResult(s->h, &s->ov_read, &got, TRUE);
         s->read_pending = false;
 
@@ -459,7 +473,7 @@ int vm_serial_write_win32(vm_serial_t *s, const void *buf, int len)
                 continue;
             }
 
-            CancelIoEx(s->h, &s->ov_write);
+            cancel_io(s, &s->ov_write);
             GetOverlappedResult(s->h, &s->ov_write, &wrote, TRUE);
             done += (int)wrote;
 

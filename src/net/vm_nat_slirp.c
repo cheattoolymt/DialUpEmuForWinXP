@@ -25,6 +25,10 @@
 
 #include "vm_nat_internal.h"
 
+#if defined(VMODEM_TARGET_XP) && defined(VMODEM_HAVE_LIBSLIRP)
+#error XP diagnostic builds must not link the unported libslirp socket backend
+#endif
+
 #ifndef VMODEM_HAVE_LIBSLIRP
 
 /* libslirp 無しビルド: 利用不可を返すだけ */

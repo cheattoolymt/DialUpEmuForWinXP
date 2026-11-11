@@ -34,6 +34,9 @@
 #include "vmodem/vm_config.h"
 #include "vmodem/vm_log.h"
 #include "vmodem/vm_nat.h"
+#include "vmodem/vm_audio.h"
+#include "vmodem/vm_clock.h"
+#include <math.h>
 
 #ifndef _WIN32
 #  include <signal.h>
@@ -63,6 +66,36 @@ static void on_signal(int sig)
 }
 #endif
 
+/* Audible diagnostic without COM, RAS or network changes. */
+static int audio_test(void)
+{
+    vm_audio_t *audio = NULL;
+    vm_audio_params_t params;
+    float block[160];
+    unsigned sample = 0, part;
+    vm_audio_params_defaults(&params);
+    vm_log_init(VM_LOG_INFO, NULL);
+    if (vm_audio_open(&audio, &params) != VM_OK) return 1;
+    for (part = 0; part < 50; ++part) {
+        unsigned i, offset = 0;
+        uint64_t deadline = vm_clock_now_ms64() + 3000;
+        for (i = 0; i < 160; ++i, ++sample)
+            block[i] = 0.3f * (float)sin(6.283185307179586 * 400 * sample / 8000);
+        while (offset < 160) {
+            offset += vm_audio_write(audio, block + offset, 160 - offset);
+            if (vm_audio_failed(audio) || vm_clock_now_ms64() >= deadline) {
+                vm_audio_close(audio);
+                return 1;
+            }
+            if (offset < 160) vm_audio_wait_drain(audio, 1, 5);
+        }
+    }
+    vm_audio_drain(audio, 3000);
+    part = vm_audio_failed(audio) || !vm_audio_is_drained(audio);
+    vm_audio_close(audio);
+    return part ? 1 : 0;
+}
+
 static void usage(const char *argv0)
 {
     printf(
@@ -70,13 +103,22 @@ static void usage(const char *argv0)
 "\n"
 "使い方: %s [オプション]\n"
 "\n"
+#ifdef VMODEM_TARGET_XP
+"  -c, --config <path>   Config file (default: config-xp.ini)\n"
+#else
 "  -c, --config <path>   設定ファイル (既定: config.ini)\n"
+#endif
 "  -p, --port <name>     COM ポート名を上書き (例: CNCB0)\n"
 "  -v, --verbose         ログレベルを DEBUG に\n"
 "      --trace           ログレベルを TRACE に (バイト単位のダンプ)\n"
 "  -q, --quiet           音を出さない\n"
 "      --wav <path>      合成音を WAV に書き出す (デバッグ用)\n"
+#ifdef VMODEM_TARGET_XP
+"      --net <mode>      none | loopback (diagnostic only; no Internet/isolation)\n"
+#else
 "      --net <mode>      slirp | loopback | none\n"
+#endif
+"      --audio-test      Play a 400 Hz tone without COM/network access\n"
 "  -h, --help            このヘルプ\n"
 "\n"
 "設定例 (config.ini):\n"
@@ -89,12 +131,17 @@ static void usage(const char *argv0)
 
 int main(int argc, char **argv)
 {
+#ifdef VMODEM_TARGET_XP
+    const char *cfg_path = "config-xp.ini";
+#else
     const char *cfg_path = "config.ini";
+#endif
     const char *port_override = NULL;
     const char *net_override  = NULL;
     const char *wav_override  = NULL;
     int  level_override = -1;
     int  quiet = 0;
+    int  test_audio = 0;
     vm_config_t cfg;
     char errbuf[256];
     char status[256];
@@ -116,6 +163,8 @@ int main(int argc, char **argv)
             level_override = VM_LOG_DEBUG;
         else if (!strcmp(a, "--trace"))
             level_override = VM_LOG_TRACE;
+        else if (!strcmp(a, "--audio-test"))
+            test_audio = 1;
         else if (!strcmp(a, "-q") || !strcmp(a, "--quiet"))
             quiet = 1;
         else {
@@ -125,11 +174,17 @@ int main(int argc, char **argv)
         }
     }
 
+    if (test_audio) return audio_test();
+
     /* --- 設定 --- */
     vm_config_defaults(&cfg);
     errbuf[0] = '\0';
     rc = vm_config_load(&cfg, cfg_path, errbuf, sizeof(errbuf));
     if (rc != VM_OK) {
+#ifdef VMODEM_TARGET_XP
+        fprintf(stderr, "Cannot load XP diagnostic config '%s': %s\n", cfg_path, errbuf);
+        return 1;
+#endif
         /*
          * 設定が読めなくても既定値で起動できるようにする。
          * 「まず動かして音を聞きたい」というのが最初の使い方なので、
@@ -154,6 +209,10 @@ int main(int argc, char **argv)
     /* --- ログ --- */
     vm_log_init((vm_log_level_t)cfg.log_level,
                 cfg.log_file[0] ? cfg.log_file : NULL);
+
+#ifdef VMODEM_TARGET_XP
+    VM_LOGW("XP Steps 3-5 DIAGNOSTIC: Internet NAT and LAN/Wi-Fi isolation are NOT implemented");
+#endif
 
     /* --- Winsock ---
      *

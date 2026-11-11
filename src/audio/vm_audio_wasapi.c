@@ -34,7 +34,7 @@
  * 見づらいので HELPER マクロを定義してある。
  */
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(VMODEM_TARGET_XP)
 
 #include "vm_audio_internal.h"
 
@@ -563,7 +563,7 @@ void vm_audio_run_wasapi(vm_audio_t *a)
     /* ================================================================= */
     /* 12. レンダー ループ                                                */
     /* ================================================================= */
-    while (!a->quit) {
+    while (!VM_ATOMIC_LOAD_ACQ(&a->quit)) {
         UINT32 padding = 0, avail;
         BYTE  *dst = NULL;
 
@@ -575,7 +575,7 @@ void vm_audio_run_wasapi(vm_audio_t *a)
         if (WaitForSingleObject(w.ev, 200) == WAIT_TIMEOUT)
             continue;
 
-        if (a->quit) break;
+        if (VM_ATOMIC_LOAD_ACQ(&a->quit)) break;
 
         /* flush 要求の処理 (消費者スレッドなので安全に reset できる) */
         vm_audio_backend_handle_flush(a);

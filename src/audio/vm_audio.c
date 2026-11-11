@@ -143,8 +143,11 @@ static void *thread_entry(void *arg);   /* 前方宣言 */
 static void dispatch_backend(vm_audio_t *a)
 {
     switch (a->backend) {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(VMODEM_TARGET_XP)
     case VM_AUDIO_BACKEND_WASAPI:  vm_audio_run_wasapi(a);  break;
+#endif
+#ifdef _WIN32
+    case VM_AUDIO_BACKEND_WAVEOUT: vm_audio_run_waveout(a); break;
 #endif
     case VM_AUDIO_BACKEND_WAVFILE: vm_audio_run_wavfile(a); break;
     case VM_AUDIO_BACKEND_NULL:    vm_audio_run_null(a);    break;
@@ -204,7 +207,9 @@ vm_err_t vm_audio_open(vm_audio_t **out, const vm_audio_params_t *params)
 
     /* AUTO の解決 */
     if (p.backend == VM_AUDIO_BACKEND_AUTO) {
-#ifdef _WIN32
+#ifdef VMODEM_TARGET_XP
+        p.backend = VM_AUDIO_BACKEND_WAVEOUT;
+#elif defined(_WIN32)
         p.backend = VM_AUDIO_BACKEND_WASAPI;
 #else
         p.backend = p.wav_path && p.wav_path[0]
@@ -296,13 +301,15 @@ void vm_audio_close(vm_audio_t *a)
 {
     if (!a) return;
 
-    a->quit = 1;
+    VM_ATOMIC_STORE_REL(&a->quit, 1);
     /* レンダースレッドが space_ev / ring 待ちで寝ていても起こす */
     vm_ev_set(a->space_ev);
 
     if (a->thread_started) {
 #ifdef _WIN32
-        WaitForSingleObject(a->thread, 3000);
+        /* A timeout must not free rings/header storage still used by the
+         * worker or its device driver. Each normal backend polls quit. */
+        WaitForSingleObject(a->thread, INFINITE);
         CloseHandle(a->thread);
 #else
         pthread_join(a->thread, NULL);
@@ -319,7 +326,7 @@ void vm_audio_close(vm_audio_t *a)
 
 uint32_t vm_audio_write(vm_audio_t *a, const float *samples, uint32_t n)
 {
-    if (!a || !samples || n == 0) return 0;
+    if (!a || !samples || n == 0 || vm_audio_failed(a)) return 0;
     return vm_frb_write(&a->ring, samples, n);
 }
 
@@ -341,7 +348,7 @@ void vm_audio_wait_drain(vm_audio_t *a, uint32_t high_water, int timeout_ms)
     if (!a) return;
 
     while (vm_frb_used(&a->ring) >= high_water) {
-        if (a->quit) return;
+        if (VM_ATOMIC_LOAD_ACQ(&a->quit)) return;
         if (timeout_ms >= 0 && waited >= timeout_ms) return;
         /*
          * space_ev はレンダースレッドが消費した時にセットされる。
@@ -352,17 +359,32 @@ void vm_audio_wait_drain(vm_audio_t *a, uint32_t high_water, int timeout_ms)
     }
 }
 
+bool vm_audio_is_drained(const vm_audio_t *a)
+{
+    return a && vm_frb_used(&a->ring) == 0 &&
+        (a->backend != VM_AUDIO_BACKEND_WAVEOUT ||
+         VM_ATOMIC_LOAD_ACQ(&a->device_pending) == 0);
+}
+
 void vm_audio_drain(vm_audio_t *a, int timeout_ms)
 {
     int waited = 0;
     if (!a) return;
 
-    /* リングを空にする */
-    while (vm_frb_used(&a->ring) > 0) {
-        if (a->quit) return;
-        if (timeout_ms >= 0 && waited >= timeout_ms) return;
+    if (a->backend == VM_AUDIO_BACKEND_WAVEOUT)
+        VM_ATOMIC_STORE_REL(&a->drain_req, 1);
+    /* waveOut must finish device buffers as well as the producer ring. */
+    while (vm_frb_used(&a->ring) > 0 ||
+           (a->backend == VM_AUDIO_BACKEND_WAVEOUT &&
+            VM_ATOMIC_LOAD_ACQ(&a->device_pending) > 0)) {
+        if (VM_ATOMIC_LOAD_ACQ(&a->quit) || vm_audio_failed(a) ||
+            (timeout_ms >= 0 && waited >= timeout_ms)) break;
         vm_ev_wait(a->space_ev, 5);
         waited += 5;
+    }
+    if (a->backend == VM_AUDIO_BACKEND_WAVEOUT) {
+        VM_ATOMIC_STORE_REL(&a->drain_req, 0);
+        return;
     }
 
     /*
@@ -380,7 +402,12 @@ void vm_audio_flush(vm_audio_t *a)
      * 生成側が直接 tail を動かすと SPSC の前提 (tail は消費者のみ) が
      * 壊れるため、フラグ経由にするのが重要。
      */
-    a->flush_req = 1;
+    VM_ATOMIC_STORE_REL(&a->flush_req, 1);
+}
+
+bool vm_audio_failed(const vm_audio_t *a)
+{
+    return a && VM_ATOMIC_LOAD_ACQ(&a->failed) != 0;
 }
 
 int vm_audio_device_rate(const vm_audio_t *a)
@@ -393,6 +420,7 @@ const char *vm_audio_backend_name(const vm_audio_t *a)
     if (!a) return "(none)";
     switch (a->backend) {
     case VM_AUDIO_BACKEND_WASAPI:  return "WASAPI";
+    case VM_AUDIO_BACKEND_WAVEOUT: return "waveOut";
     case VM_AUDIO_BACKEND_WAVFILE: return "WAV file";
     case VM_AUDIO_BACKEND_NULL:    return "null";
     default:                       return "(unknown)";
@@ -433,8 +461,8 @@ vm_err_t vm_audio_backend_resampler_init(vm_audio_t *a)
 
 void vm_audio_backend_handle_flush(vm_audio_t *a)
 {
-    if (!a || !a->flush_req) return;
-    a->flush_req = 0;
+    if (!a || !VM_ATOMIC_LOAD_ACQ(&a->flush_req)) return;
+    VM_ATOMIC_STORE_REL(&a->flush_req, 0);
     /* 消費者スレッドなので tail を動かして良い */
     vm_frb_reset(&a->ring);
     if (a->rs_ready) vm_resampler_reset(&a->rs);

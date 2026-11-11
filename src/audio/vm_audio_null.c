@@ -139,7 +139,7 @@ static void run_common(vm_audio_t *a, bool write_wav)
     a->ready_result = (int)VM_OK;
     vm_ev_set(a->ready_ev);
 
-    while (!a->quit) {
+    while (!VM_ATOMIC_LOAD_ACQ(&a->quit)) {
         uint32_t i;
 
         vm_audio_backend_handle_flush(a);

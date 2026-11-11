@@ -23,6 +23,7 @@
 #include "vmodem/vm_ppp.h"
 #include "vmodem/vm_nat.h"
 #include "vmodem/vm_log.h"
+#include "vmodem/vm_clock.h"
 #include "vmodem/vm_netguard.h"
 
 #ifdef _WIN32
@@ -97,7 +98,9 @@ struct vm_modem_s {
  * -------------------------------------------------------------------------- */
 uint32_t vm_modem_now_ms(void)
 {
-#ifdef _WIN32
+#ifdef VMODEM_TARGET_XP
+    return (uint32_t)vm_clock_now_ms64();
+#elif defined(_WIN32)
     /*
      * GetTickCount() は 49.7 日で折り返すが、uint32_t の差分演算しか
      * 行わないので折り返しても正しく動く (符号なしの環状差分)。
@@ -285,6 +288,16 @@ vm_err_t vm_modem_create(vm_modem_t **out, const vm_config_t *cfg)
     m->state = VM_MODEM_COMMAND;
     m->std   = VM_STD_UNKNOWN;
 
+#ifdef VMODEM_TARGET_XP
+    /* Steps 7/8 are not implemented. Never silently claim Internet access or
+     * physical NIC isolation; only explicitly selected diagnostic modes work. */
+    if (strcmp(cfg->net_mode, "none") && strcmp(cfg->net_mode, "loopback")) {
+        VM_LOGE("XP diagnostic build: use --net none or --net loopback; NDIS Internet/isolation is not implemented");
+        free(m);
+        return VM_ERR_UNSUPPORTED;
+    }
+#endif
+
     /* --- COM ポート (これだけは必須。開けなければ起動できない) --- */
     vm_serial_params_defaults(&sp);
     sp.port = cfg->com_port;
@@ -334,7 +347,7 @@ vm_err_t vm_modem_create(vm_modem_t **out, const vm_config_t *cfg)
             return rc;
         }
     }
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(VMODEM_TARGET_XP)
     if (nc.backend == VM_NAT_SLIRP) {
         rc = vm_netguard_open(&m->netguard);
         if (rc != VM_OK) {
@@ -656,6 +669,11 @@ static bool render_sequence(vm_modem_t *m)
 {
     bool done = false;
 
+    if (m->aud && vm_audio_failed(m->aud)) {
+        VM_LOGW("modem: audio backend failed; continuing sequence without sound");
+        vm_audio_close(m->aud);
+        m->aud = NULL;
+    }
     if (m->aud == NULL) {
         /*
          * 音声デバイスが無い場合も「シーケンスの時間は消費する」。

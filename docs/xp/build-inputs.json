@@ -1,0 +1,45 @@
+{
+  "compiler_target": "i686-w64-mingw32",
+  "compiler_runtime": "MSVCRT / win32 thread model",
+  "build_host": "Debian GNU/Linux 13 amd64",
+  "package_source": "https://snapshot.debian.org/archive/debian/20261103T013555Z/",
+  "packages": [
+    {
+      "package_file": "gcc-mingw-w64-base_14.2.0-19+27+b1_amd64.deb",
+      "package": "gcc-mingw-w64-base",
+      "version": "14.2.0-19+27+b1",
+      "sha256": "8d2c64b886ab4a435a78ddc4cd3b510f149b65fbd6be8472e8f460627562718a"
+    },
+    {
+      "package_file": "mingw-w64-common_12.0.0-5_all.deb",
+      "package": "mingw-w64-common",
+      "version": "12.0.0-5",
+      "sha256": "97dce5d0d8aff1cade4786ad4ef5078345477a598829afcac2e7f2fbc5399990"
+    },
+    {
+      "package_file": "binutils-mingw-w64-i686_2.44-3+12+b1_amd64.deb",
+      "package": "binutils-mingw-w64-i686",
+      "version": "2.44-3+12+b1",
+      "sha256": "a8b90b43c53371e436e804a2335bfef77824dbd3d40c74e01acbed04ad333310"
+    },
+    {
+      "package_file": "gcc-mingw-w64-i686-win32-runtime_14.2.0-19+27+b1_amd64.deb",
+      "package": "gcc-mingw-w64-i686-win32-runtime",
+      "version": "14.2.0-19+27+b1",
+      "sha256": "1bf47cc4727c2be08930cbc7eb8b3a37a67eb5cf02ee72a3834c2fd2ebfc6bbc"
+    },
+    {
+      "package_file": "gcc-mingw-w64-i686-win32_14.2.0-19+27+b1_amd64.deb",
+      "package": "gcc-mingw-w64-i686-win32",
+      "version": "14.2.0-19+27+b1",
+      "sha256": "918cc18b87ccaa197a2abf53d00382cb48779a99ea5c9c10413099d92a4dfa1f"
+    },
+    {
+      "package_file": "mingw-w64-i686-dev_12.0.0-5_all.deb",
+      "package": "mingw-w64-i686-dev",
+      "version": "12.0.0-5",
+      "sha256": "ddd5f65c29014ae67b89df146a8016f38056a9d8eadbccd17cae4c00ccd01528"
+    }
+  ],
+  "scope": "Build host tooling only; neither redistributed nor needed on XP. XP runtime compatibility is not certified by package version."
+}
