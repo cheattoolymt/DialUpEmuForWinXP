@@ -1,0 +1,14 @@
+{
+  "reported_symptom": "Tone is normal; actual dial-up starts near 99% CPU, later CPU falls but sound stays slow",
+  "root_cause_confirmed": false,
+  "change": "Add --dial-audio-test using the production sequencer and audio backend without COM/RAS; log elapsed, generated duration and ring shortage counters",
+  "validation": {
+    "host_realtime_null_backend": {
+      "tone": "[13:17:03.273] INF オーディオ出力: null / null device / 8000Hz 1ch (DSP 8000Hz)\n[13:17:04.319] INF audio-test: mode=tone expected_ms=1000 elapsed_ms=1046 render_ms=0 max_block_ms=0 missing_frames=0 empty_frames=320 drained=1\n",
+      "dial": "[13:16:28.074] INF dial sequence: \"01200000000\" -> V.34+ 33600 bps (realtime)\n[13:16:28.074] INF オーディオ出力: null / null device / 8000Hz 1ch (DSP 8000Hz)\n[13:16:37.867] INF handshake: V.34+ 33600 bps, 20 stages, ~7809 ms\n[13:16:46.529] INF audio-test: mode=dial expected_ms=18320 elapsed_ms=18455 render_ms=2 max_block_ms=1 missing_frames=0 empty_frames=320 drained=1\n"
+    },
+    "xp_host_models": "passed",
+    "xp_x86_build_and_import_audit": "passed"
+  },
+  "scope": "Host null backend checks do not validate XP physical playback; affected XP test pending"
+}

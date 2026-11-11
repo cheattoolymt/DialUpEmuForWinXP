@@ -36,6 +36,7 @@
 #include "vmodem/vm_nat.h"
 #include "vmodem/vm_audio.h"
 #include "vmodem/vm_clock.h"
+#include "vmodem/vm_sequence.h"
 #include <math.h>
 
 #ifndef _WIN32
@@ -67,20 +68,42 @@ static void on_signal(int sig)
 #endif
 
 /* Audible diagnostic without COM, RAS or network changes. */
-static int audio_test(void)
+static int audio_test(bool dial)
 {
     vm_audio_t *audio = NULL;
     vm_audio_params_t params;
     float block[160];
     unsigned sample = 0, part;
+    vm_sequence_t sequence;
+    vm_config_t config;
+    uint64_t started, render_ms = 0, max_render_ms = 0;
+    bool done = false;
     vm_audio_params_defaults(&params);
     vm_log_init(VM_LOG_INFO, NULL);
+    if (dial) {
+        vm_config_defaults(&config);
+        if (vm_sequence_start_dial(&sequence, "0120-000-0000", NULL,
+                &config, VM_STD_V34PLUS, 33600, 8000, 1.0f) != VM_OK)
+            return 1;
+    }
     if (vm_audio_open(&audio, &params) != VM_OK) return 1;
-    for (part = 0; part < 50; ++part) {
+    started = vm_clock_now_ms64();
+    for (part = 0; part < (dial ? 6000u : 50u); ++part) {
         unsigned i, offset = 0;
         uint64_t deadline = vm_clock_now_ms64() + 3000;
-        for (i = 0; i < 160; ++i, ++sample)
-            block[i] = 0.3f * (float)sin(6.283185307179586 * 400 * sample / 8000);
+        uint64_t render_start = vm_clock_now_ms64();
+        if (dial) {
+            done = vm_sequence_render(&sequence, block, 160);
+            sample += 160;
+        } else {
+            for (i = 0; i < 160; ++i, ++sample)
+                block[i] = 0.3f * (float)sin(6.283185307179586 * 400 * sample / 8000);
+        }
+        {
+            uint64_t elapsed = vm_clock_now_ms64() - render_start;
+            render_ms += elapsed;
+            if (elapsed > max_render_ms) max_render_ms = elapsed;
+        }
         while (offset < 160) {
             offset += vm_audio_write(audio, block + offset, 160 - offset);
             if (vm_audio_failed(audio) || vm_clock_now_ms64() >= deadline) {
@@ -89,9 +112,16 @@ static int audio_test(void)
             }
             if (offset < 160) vm_audio_wait_drain(audio, 1, 5);
         }
+        if (dial && done) break;
     }
     vm_audio_drain(audio, 3000);
-    part = vm_audio_failed(audio) || !vm_audio_is_drained(audio);
+    part = vm_audio_failed(audio) || !vm_audio_is_drained(audio) || (dial && !done);
+    VM_LOGI("audio-test: mode=%s expected_ms=%u elapsed_ms=%llu render_ms=%llu max_block_ms=%llu missing_frames=%u empty_frames=%u drained=%d",
+            dial ? "dial" : "tone", sample / 8,
+            (unsigned long long)(vm_clock_now_ms64() - started),
+            (unsigned long long)render_ms, (unsigned long long)max_render_ms,
+            vm_audio_underruns(audio), vm_audio_idle_frames(audio),
+            vm_audio_is_drained(audio) ? 1 : 0);
     vm_audio_close(audio);
     return part ? 1 : 0;
 }
@@ -119,6 +149,7 @@ static void usage(const char *argv0)
 "      --net <mode>      slirp | loopback | none\n"
 #endif
 "      --audio-test      Play a 400 Hz tone without COM/network access\n"
+"      --dial-audio-test Play the default V.34+ dialing sequence without COM\n"
 "  -h, --help            このヘルプ\n"
 "\n"
 "設定例 (config.ini):\n"
@@ -165,6 +196,8 @@ int main(int argc, char **argv)
             level_override = VM_LOG_TRACE;
         else if (!strcmp(a, "--audio-test"))
             test_audio = 1;
+        else if (!strcmp(a, "--dial-audio-test"))
+            test_audio = 2;
         else if (!strcmp(a, "-q") || !strcmp(a, "--quiet"))
             quiet = 1;
         else {
@@ -174,7 +207,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (test_audio) return audio_test();
+    if (test_audio) return audio_test(test_audio == 2);
 
     /* --- 設定 --- */
     vm_config_defaults(&cfg);
