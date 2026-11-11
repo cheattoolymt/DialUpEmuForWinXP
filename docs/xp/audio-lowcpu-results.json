@@ -1,0 +1,16 @@
+{
+  "reported_symptom": "User reports slow audio while dial-up is connected",
+  "root_cause_confirmed": false,
+  "change": "Prefer 8000 Hz mono; skip FIR/table setup when DSP and device rates match",
+  "sequence_timing_changed": false,
+  "networking_changed": false,
+  "validation": {
+    "existing_checks": 371,
+    "libslirp_udp_tcp": "passed on Linux",
+    "waveout_model": "8 scenarios passed",
+    "passthrough_mono_stereo": "sample identity/count, gain/clip, silence, flush passed",
+    "passthrough_asan_ubsan": "passed",
+    "xp_x86_build_imports": "passed"
+  },
+  "affected_xp_retest": "pending"
+}

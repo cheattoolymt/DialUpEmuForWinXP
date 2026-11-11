@@ -107,7 +107,11 @@ static bool release_output(vm_audio_t *a, wave_impl_t *w)
 void vm_audio_run_waveout(vm_audio_t *a)
 {
     static const struct { int rate, channels; } formats[] = {
-        {48000, 2}, {44100, 2}, {22050, 1}, {11025, 1}, {8000, 1}
+        /* The modem already generates 8 kHz mono. Prefer that format so an
+         * old CPU does not run a 96-tap FIR at 48 kHz merely to play a phone.
+         * Fall back only when the driver rejects the requested format. */
+        {8000, 1}, {8000, 2}, {11025, 1}, {22050, 1},
+        {44100, 1}, {48000, 1}, {44100, 2}, {48000, 2}
     };
     wave_impl_t *w = calloc(1, sizeof(*w));
     vm_err_t error = VM_ERR_IO;

@@ -453,6 +453,12 @@ vm_err_t vm_audio_backend_resampler_init(vm_audio_t *a)
     vm_err_t rc;
     if (!a) return VM_ERR_INVAL;
 
+    if (a->params.dsp_rate > 0 && a->params.dsp_rate == a->device_rate) {
+        /* Identity-rate output needs neither a coefficient table nor FIR.
+         * The renderer still applies volume, clipping and channel mapping. */
+        a->rs_ready = true;
+        return VM_OK;
+    }
     rc = vm_resampler_init(&a->rs, a->params.dsp_rate, a->device_rate);
     if (rc != VM_OK) return rc;
     a->rs_ready = true;
@@ -505,33 +511,39 @@ void vm_audio_backend_render(vm_audio_t *a, float *out, uint32_t n_frames)
 
         if (want > MAX_OUT) want = MAX_OUT;
 
-        /*
-         * want フレーム出すのに必要な DSP サンプル数。
-         *
-         * ここで安全マージンを足してはいけない。
-         * 生産側が 20ms ブロック単位でちょうど供給している定常状態では、
-         * 余分に要求すると【毎回必ず】部分読み出しになり、
-         * 真のアンダーランとして誤計上される (実測で 2 秒間に 38 件)。
-         * 必要数だけ要求し、出力が足りなければループが次の反復で
-         * 追加の入力を要求する。リサンプラは内部に履歴を持つので
-         * 分割供給でも波形は連続する。
-         */
-        need_in = (int)((uint64_t)want * (uint64_t)a->params.dsp_rate
-                        / (uint64_t)a->device_rate);
-        if (need_in < 1) need_in = 1;
-        if (need_in > MAX_IN) need_in = MAX_IN;
+        if (a->params.dsp_rate == a->device_rate) {
+            (void)vm_frb_read_or_silence(&a->ring, dev_buf, want);
+            produced = (int)want;
+        } else {
+            /*
+             * want フレーム出すのに必要な DSP サンプル数。
+             *
+             * ここで安全マージンを足してはいけない。
+             * 生産側が 20ms ブロック単位でちょうど供給している定常状態では、
+             * 余分に要求すると【毎回必ず】部分読み出しになり、
+             * 真のアンダーランとして誤計上される (実測で 2 秒間に 38 件)。
+             * 必要数だけ要求し、出力が足りなければループが次の反復で
+             * 追加の入力を要求する。リサンプラは内部に履歴を持つので
+             * 分割供給でも波形は連続する。
+             */
+            need_in = (int)((uint64_t)want * (uint64_t)a->params.dsp_rate
+                            / (uint64_t)a->device_rate);
+            if (need_in < 1) need_in = 1;
+            if (need_in > MAX_IN) need_in = MAX_IN;
 
-        /*
-         * リングが完全に空なら「アイドル」であり、部分的にしか無い場合が
-         * 「真のアンダーラン」。この判定は vm_frb_read_or_silence が
-         * idle_frames / underruns に分けて計上する。
-         */
-        got_in = (int)vm_frb_read_or_silence(&a->ring, dsp_buf,
-                                            (uint32_t)need_in);
-        (void)got_in;
+            /*
+             * リングが完全に空なら「アイドル」であり、部分的にしか無い場合が
+             * 「真のアンダーラン」。この判定は vm_frb_read_or_silence が
+             * idle_frames / underruns に分けて計上する。
+             */
+            got_in = (int)vm_frb_read_or_silence(&a->ring, dsp_buf,
+                                                (uint32_t)need_in);
+            (void)got_in;
 
-        produced = vm_resampler_process(&a->rs, dsp_buf, need_in,
-                                        dev_buf, (int)want, &consumed);
+            produced = vm_resampler_process(&a->rs, dsp_buf, need_in,
+                                            dev_buf, (int)want, &consumed);
+
+        }
 
         /* 音量適用 + チャネル複製 (モノラル -> 全ch 同一) */
         {

@@ -82,7 +82,7 @@ NDISバックエンドのイベント待機も後続工程で実装する。
 XPターゲットではAUTO音声バックエンドをwaveOutへ切り替える。現行WindowsのAUTOはWASAPIのまま。
 PCM16 / 20ms × 3バッファ。既存DSP、リングバッファ、リサンプラ、音量処理を通して再生する。
 
-- 48kHz stereo → 44.1kHz stereo → 22.05kHz mono → 11.025kHz mono → 8kHz mono の順に試す。
+- 8kHz mono → 8kHz stereo → 11.025kHz mono → 22.05kHz mono → 44.1kHz mono → 48kHz mono → 44.1kHz stereo → 48kHz stereo の順に試す。
   形式不一致の場合だけ次へ進み、busy/no-driver等を別形式の問題として隠さない。
 - 既定のwave mapper、またはUTF-8デバイス名の部分一致で選択できる。
   大文字小文字の同一視はASCIIのみ。指定したデバイスがなければエラー。
@@ -140,3 +140,18 @@ bash scripts/test-baseline.sh --slirp
 PCM変換、drain/flush、形式・名前選択、prepare/write/reset/unprepareの失敗と後始末を確認する。
 XPの音声ドライバ、WinMMの実イベント順、物理デバイスの遅延を実証するものではない。
 結果は [03-05-results.json](03-05-results.json) に、XP未実行という制限とともに記録する。
+
+## 低スペックXP向けの音声負荷削減
+
+実機利用者から「接続状態にはなるが、音がゆっくり」という報告を受け、
+waveOutの既定をDSPと同じ8kHz mono優先へ変更した。
+同一サンプルレートでは96tapのFIRと係数生成を省略し、
+元のサンプル数を維持したまま音量・クリップ・チャネル展開だけを行う。
+サンプルの間引きや演出の時間短縮で速度を変える変更ではない。
+非対応形式の場合は他の形式を試し、レート変換が必要なら既存FIRを使う。
+
+実際のXPでの遅さの原因がCPU負荷だと確定したわけではない。
+ホスト試験で同一レートのサンプル保存と後始末を検証したが、
+対象機での改善・ドライバ内部の変換負荷・実再生時間は利用者の再確認が必要。
+`vmodem-xp.exe --audio-test` の400Hzが約1秒で再生されるかと、
+起動ログの採用レート/チャネル数を比較する。

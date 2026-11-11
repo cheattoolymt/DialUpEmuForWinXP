@@ -45,7 +45,7 @@ MMRESULT waveOutOpen(HWAVEOUT *o, UINT dev, const WAVEFORMATEX *f,
     assert(f->wFormatTag == WAVE_FORMAT_PCM && f->wBitsPerSample == 16);
     assert(f->nBlockAlign == f->nChannels*2);
     assert(f->nAvgBytesPerSec == f->nSamplesPerSec*f->nBlockAlign);
-    if (mode == 1 || (mode == 6 && f->nSamplesPerSec == 48000)) return WAVERR_BADFORMAT;
+    if (mode == 1 || (mode == 6 && f->nSamplesPerSec == 8000)) return WAVERR_BADFORMAT;
     *o = &event_token; return 0;
 }
 MMRESULT waveOutPrepareHeader(HWAVEOUT o, WAVEHDR *h, UINT size)
@@ -123,7 +123,8 @@ int main(void)
             else assert(!a.failed && writes==6 && unprepares>0);
         }
         if (m!=1 && m!=7) assert(closes==1);
-        if (m==6) assert(a.device_rate==44100);
+        if (m==6) assert(a.device_rate==11025 && a.device_channels==1);
+        if (m==0) assert(a.device_rate==8000 && a.device_channels==1);
     }
     puts("PASS: waveOut PCM, drain/flush, format/name selection and 4 failure/cleanup paths (8 scenarios)");
     return 0;
